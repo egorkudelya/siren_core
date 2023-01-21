@@ -30,6 +30,8 @@ include_directories(include)
 add_library(siren_core STATIC
         src/decoder/pcm.cpp
         src/decoder/pcm.h
+        src/entities/freq_bin.cpp
+        src/entities/freq_bin.h
         )
 
 add_library(miniaudio STATIC vendor/miniaudio/extras/miniaudio_split/miniaudio.c)
