@@ -1,0 +1,18 @@
+[submodule "vendor/googletest"]
+	path = vendor/googletest
+	url = git@github.com:google/googletest.git
+[submodule "vendor/opencv"]
+	path = vendor/opencv
+	url = git@github.com:opencv/opencv.git
+[submodule "vendor/eigen"]
+	path = vendor/eigen
+	url = https://gitlab.com/libeigen/eigen
+[submodule "vendor/miniaudio"]
+	path = vendor/miniaudio
+	url = git@github.com:mackron/miniaudio.git
+[submodule "vendor/wasserstein"]
+	path = vendor/wasserstein
+	url = git@github.com:gnardari/wasserstein.git
+[submodule "vendor/kissfft"]
+	path = vendor/kissfft
+	url = git@github.com:mborgerding/kissfft.git
