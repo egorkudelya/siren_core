@@ -16,3 +16,6 @@
 [submodule "vendor/kissfft"]
 	path = vendor/kissfft
 	url = git@github.com:mborgerding/kissfft.git
+[submodule "vendor/restclient-cpp"]
+	path = vendor/restclient-cpp
+	url = git@github.com:mrtazz/restclient-cpp.git

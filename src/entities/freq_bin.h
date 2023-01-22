@@ -3,8 +3,6 @@
 #include <iostream>
 #include <cmath>
 
-#include "spectrogram.h"
-
 namespace siren
 {
 
