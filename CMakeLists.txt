@@ -25,6 +25,7 @@ add_subdirectory(vendor/eigen)
 add_subdirectory(vendor/googletest)
 add_subdirectory(vendor/kissfft)
 
+find_package(OpenCV REQUIRED)
 
 add_library(siren_core STATIC
         src/entities/freq_bin.cpp
@@ -40,7 +41,7 @@ add_library(siren_core STATIC
 add_library(miniaudio STATIC vendor/miniaudio/extras/miniaudio_split/miniaudio.c)
 set_target_properties(miniaudio PROPERTIES LINKER_LANGUAGE C)
 
-target_link_libraries(siren_core Eigen3::Eigen kissfft miniaudio)
+target_link_libraries(siren_core ${OpenCV_LIBS} Eigen3::Eigen kissfft miniaudio)
 target_include_directories(siren_core PRIVATE vendor/wasserstein)
 
 

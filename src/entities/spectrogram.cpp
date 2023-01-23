@@ -225,4 +225,17 @@ namespace siren
         return intervals;
     }
 
+    SaveablePeakSpectrogram::SaveablePeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm,std::unique_ptr<siren::FFT> fft, float peak_threshold)
+        : PeakSpectrogram(std::move(pcm), std::move(fft), peak_threshold)
+    {
+    }
+
+    void SaveablePeakSpectrogram::as_png(const std::string& path)
+    {
+        Eigen::MatrixXf reversed_mat = this->get_peak_spec_view().toDense().colwise().reverse();
+        cv::Mat out;
+        cv::eigen2cv(reversed_mat, out);
+        cv::imwrite(path, out);
+    }
+
 }// namespace siren
