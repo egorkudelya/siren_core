@@ -25,7 +25,6 @@ add_subdirectory(vendor/eigen)
 add_subdirectory(vendor/googletest)
 add_subdirectory(vendor/kissfft)
 
-include_directories(include)
 
 add_library(siren_core STATIC
         src/entities/freq_bin.cpp
@@ -34,6 +33,8 @@ add_library(siren_core STATIC
         src/decoder/pcm.h
         src/fft/fft.cpp
         src/fft/fft.h
+        src/entities/spectrogram.cpp
+        src/entities/spectrogram.h
         )
 
 add_library(miniaudio STATIC vendor/miniaudio/extras/miniaudio_split/miniaudio.c)
