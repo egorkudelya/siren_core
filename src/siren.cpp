@@ -7,6 +7,7 @@ namespace siren
     SirenEngine::SirenEngine(siren::EngineSpecification&& engine_specification)
         : m_specification(std::move(engine_specification))
     {
+        assert(!s_instance && "Siren core already exists");
         s_instance = this;
     }
 
