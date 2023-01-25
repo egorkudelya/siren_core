@@ -39,14 +39,14 @@ add_library(siren_core STATIC
         src/common/common.h
         src/serializer/serializer.h
         src/serializer/traits.h
+        src/siren.cpp
+        src/siren.h
         )
 
 add_library(miniaudio STATIC vendor/miniaudio/extras/miniaudio_split/miniaudio.c)
 set_target_properties(miniaudio PROPERTIES LINKER_LANGUAGE C)
 
 target_link_libraries(siren_core ${OpenCV_LIBS} Eigen3::Eigen kissfft miniaudio)
-target_include_directories(siren_core PRIVATE vendor/wasserstein)
-
 
 if (BUILD_SIREN_TESTS)
     add_executable(test_decoder test/decoder.cpp)
