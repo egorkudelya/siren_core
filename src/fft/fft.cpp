@@ -21,7 +21,7 @@ namespace siren
 
     void FFT::config_hanning_window(size_t window_size)
     {
-        size_t ws = window_size - 1;
+        float ws = window_size - 1;
         std::vector<float> window_func(window_size);
         for (size_t i = 0; i < window_size; i++)
         {

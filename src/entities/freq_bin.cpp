@@ -6,16 +6,13 @@ namespace siren
     {
         m_freq = (static_cast<float>(window_index) / window_size) * sampling_rate;
 
-        auto calc_magnitude = [](float r, float i) -> float {
-            if (std::fpclassify(r) == FP_ZERO && std::fpclassify(i) == FP_ZERO)
-            {
-                return 0.0;
-            }
-            return std::sqrt(std::pow(r, 2) + std::pow(i, 2));
-            // return 20 * log10(std::sqrt(std::pow(r, 2) + std::pow(i, 2))); dB
-        };
-
-        m_mag = calc_magnitude(r, i);
+        if (std::fpclassify(r) == FP_ZERO && std::fpclassify(i) == FP_ZERO)
+        {
+            m_mag = 0.0;
+            return;
+        }
+        // return 20 * log10(std::sqrt(std::pow(r, 2) + std::pow(i, 2))); dB
+        m_mag = std::sqrt(std::pow(r, 2) + std::pow(i, 2));
     }
 
     [[nodiscard]] float FreqBin::get_frequency() const

@@ -43,26 +43,18 @@ namespace siren
             m_fft_core->process_window(std::move(window));
             float ts = m_time_resolution * frame_idx;
 
-            auto symmetry_check = [this](size_t bin_idx) -> bool {
-                if (static_cast<float>(bin_idx) / m_window_size * m_sampling_rate >= m_nyquist_component)
-                {
-                    return true;
-                }
-                return false;
-            };
-
-            for (size_t l_idx = 0; l_idx < m_fft_core->get_fft_size(); l_idx++)
+            for (size_t b_idx = 0; b_idx < m_fft_core->get_fft_size(); b_idx++)
             {
-                if (symmetry_check(l_idx))
+                if (static_cast<float>(b_idx) / m_window_size * m_sampling_rate >= m_nyquist_component)
                 {
                     break;
                 }
                 FreqBin freq_bin(
-                    l_idx,
+                    b_idx,
                     m_window_size,
                     m_sampling_rate,
-                    m_fft_core->get_real_by_idx(l_idx),
-                    m_fft_core->get_imag_by_idx(l_idx));
+                    m_fft_core->get_real_by_idx(b_idx),
+                    m_fft_core->get_imag_by_idx(b_idx));
 
                 triplet_list.emplace_back(Triplet(freq_bin.get_frequency(), floor(ts), freq_bin.get_magnitude()));
             }
@@ -99,6 +91,7 @@ namespace siren
     {
         size_t last_ts = m_window_counter * m_window_size * m_time_resolution;
         size_t non_zero_est = (m_nyquist_component / m_freq_resolution) * (last_ts / m_time_resolution);
+
         m_spectrogram = Eigen::SparseMatrix<float, Eigen::RowMajor>(ceil(m_nyquist_component), last_ts + 1);
         m_spectrogram.reserve(non_zero_est);
     }
