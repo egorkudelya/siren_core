@@ -8,6 +8,7 @@
 #include "spectrogram.h"
 #include "../common/common.h"
 #include "../common/hash/xxh64.h"
+#include "../serializer/serializer.h"
 
 namespace siren
 {
@@ -154,6 +155,12 @@ namespace siren
                 }
             }
             return EngineStatus::OK;
+        }
+
+        constexpr static auto properties()
+        {
+            return std::make_tuple(
+                json::property(&Fingerprint::m_fingerprint, "fingerprint"));
         }
 
     private:

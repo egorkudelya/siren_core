@@ -15,10 +15,8 @@ endif ()
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
 
 #exclude kissfft tests
-option(KISSFFT_TEST "Build kissfft tests" ON)
-set(KISSFFT_TEST OFF)
-option(KISSFFT_TOOLS "Build kissfft command-line tools" ON)
-set(KISSFFT_TOOLS OFF)
+option(KISSFFT_TEST "Build kissfft tests" OFF)
+option(KISSFFT_TOOLS "Build kissfft command-line tools" OFF)
 
 
 add_subdirectory(vendor/eigen)
@@ -39,6 +37,8 @@ add_library(siren_core STATIC
         src/entities/fingerprint.h
         src/common/common.cpp
         src/common/common.h
+        src/serializer/serializer.h
+        src/serializer/traits.h
         )
 
 add_library(miniaudio STATIC vendor/miniaudio/extras/miniaudio_split/miniaudio.c)
