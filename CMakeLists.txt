@@ -36,6 +36,9 @@ add_library(siren_core STATIC
         src/fft/fft.h
         src/entities/spectrogram.cpp
         src/entities/spectrogram.h
+        src/entities/fingerprint.h
+        src/common/common.cpp
+        src/common/common.h
         )
 
 add_library(miniaudio STATIC vendor/miniaudio/extras/miniaudio_split/miniaudio.c)
