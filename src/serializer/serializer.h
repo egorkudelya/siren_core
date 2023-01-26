@@ -7,7 +7,6 @@
 
 #include "traits.h"
 
-
 // TODO add a deserializer in case I ever need it
 namespace siren::json
 {
@@ -101,7 +100,7 @@ namespace siren::json
         std::unordered_map<std::string, std::any> m_data;
     };
 
-    namespace
+    namespace detail
     {
         template<typename T>
         std::string t_string(const T& value)
@@ -240,29 +239,30 @@ namespace siren::json
 
             if constexpr (is_map<PropertyType>::value)
             {
-                handle_map(str_repr, key, val);
+                detail::handle_map(str_repr, key, val);
             }
 
             else if constexpr (is_vector<PropertyType>::value)
             {
-                handle_vector(str_repr, key, val);
+                detail::handle_vector(str_repr, key, val);
             }
 
             else if constexpr (std::is_fundamental_v<PropertyType>)
             {
-                str_repr += QUOTE_KEY(key);
-                str_repr += t_string(val);
+                str_repr += detail::QUOTE_KEY(key);
+                str_repr += detail::t_string(val);
             }
 
             else if constexpr (is_string_type<PropertyType>::value)
             {
-                str_repr += QUOTE_KEY(key);
-                str_repr += QUOTE_VAL(val);
+                str_repr += detail::QUOTE_KEY(key);
+                str_repr += detail::QUOTE_VAL(val);
             }
             else
             {
                 std::cerr << "This version of the serializer only supports "
-                             "fundamental types, strings, vectors and maps." << std::endl;
+                             "fundamental types, strings, vectors and maps."
+                          << std::endl;
             }
         });
         str_repr += "}";

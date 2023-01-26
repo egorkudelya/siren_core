@@ -39,7 +39,7 @@ namespace siren
 
     struct EngineReturnType {
         Fingerprint<siren::PeakSpectrogram> fingerprint{};
-        EngineStatus return_code;
+        EngineStatus code;
     };
 
     class SirenEngine

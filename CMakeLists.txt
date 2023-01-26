@@ -22,6 +22,7 @@ option(KISSFFT_TOOLS "Build kissfft command-line tools" OFF)
 add_subdirectory(vendor/eigen)
 add_subdirectory(vendor/googletest)
 add_subdirectory(vendor/kissfft)
+add_subdirectory(vendor/restclient-cpp)
 
 find_package(OpenCV REQUIRED)
 
@@ -48,12 +49,21 @@ set_target_properties(miniaudio PROPERTIES LINKER_LANGUAGE C)
 
 target_link_libraries(siren_core ${OpenCV_LIBS} Eigen3::Eigen kissfft miniaudio)
 
+add_library(client_wrapper STATIC
+        src/client_wrapper/client_wrapper.cpp
+        src/client_wrapper/client_wrapper.h
+        src/client_wrapper/http_client.cpp
+        src/client_wrapper/http_client.h
+        )
+
+target_link_libraries(client_wrapper siren_core restclient-cpp)
+
 if (BUILD_SIREN_TESTS)
     add_executable(test_decoder test/decoder.cpp)
     add_executable(test_entities test/entities.cpp)
     add_executable(test_fft test/fft.cpp)
 
-    set(libs gtest gtest_main siren_core)
+    set(libs gtest gtest_main client_wrapper)
 
     target_link_libraries(test_decoder ${libs})
     target_link_libraries(test_entities ${libs})

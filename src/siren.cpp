@@ -28,7 +28,7 @@ namespace siren
 
         if (!audio->config_decoder())
         {
-            return_obj.return_code = EngineStatus::TargetFileDoesNotExist;
+            return_obj.code = EngineStatus::TargetFileDoesNotExist;
             return return_obj;
         }
 
@@ -37,7 +37,7 @@ namespace siren
         siren::Fingerprint fingerprint;
         EngineStatus code = fingerprint.make_fingerprint(std::move(spectrogram), target_net_size, min_peak_count);
 
-        return_obj.return_code = code;
+        return_obj.code = code;
         return_obj.fingerprint = std::move(fingerprint);
 
         return return_obj;
