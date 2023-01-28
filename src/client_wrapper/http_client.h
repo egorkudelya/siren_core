@@ -1,7 +1,5 @@
 #pragma once
-
-#include "restclient-cpp/connection.h"
-#include "restclient-cpp/restclient.h"
+#include <string>
 
 namespace siren::client
 {

@@ -61,11 +61,9 @@ target_link_libraries(client_wrapper siren_core restclient-cpp)
 if (BUILD_SIREN_TESTS)
     add_executable(test_decoder test/decoder.cpp)
     add_executable(test_entities test/entities.cpp)
-    add_executable(test_fft test/fft.cpp)
 
     set(libs gtest gtest_main client_wrapper)
 
     target_link_libraries(test_decoder ${libs})
     target_link_libraries(test_entities ${libs})
-    target_link_libraries(test_fft ${libs})
 endif ()

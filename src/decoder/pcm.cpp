@@ -1,4 +1,5 @@
 #include <utility>
+#include <../miniaudio/miniaudio.h>
 #include "pcm.h"
 
 namespace siren::audio

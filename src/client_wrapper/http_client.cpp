@@ -1,4 +1,5 @@
 #include "http_client.h"
+#include "restclient-cpp/restclient.h"
 
 namespace siren::client
 {

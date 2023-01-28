@@ -3,8 +3,6 @@
 #include <iostream>
 #include <vector>
 
-#include "../../vendor/miniaudio/miniaudio.h"
-
 namespace siren::audio
 {
 

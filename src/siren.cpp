@@ -23,7 +23,7 @@ namespace siren
 
         EngineReturnType return_obj;
 
-        std::unique_ptr<siren::KissFFT> fft = std::make_unique<siren::KissFFT>(target_window_function, target_window_size);
+        std::unique_ptr<siren::FFT> fft = std::make_unique<siren::KissFFT>(target_window_function, target_window_size);
         std::unique_ptr<siren::audio::PCM> audio = std::make_unique<siren::audio::PCM>(track_path, target_channel_count, target_sampling_rate);
 
         if (!audio->config_decoder())
