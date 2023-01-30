@@ -38,6 +38,12 @@ namespace siren
     };
 
     struct EngineReturnType {
+
+        explicit operator bool() const
+        {
+            return code == EngineStatus::OK;
+        }
+
         Fingerprint<siren::PeakSpectrogram> fingerprint{};
         EngineStatus code;
     };

@@ -44,13 +44,14 @@ namespace siren
         std::vector<T> m_values;
     };
 
-    template<template<typename> class BASE, typename T, typename = decltype(std::declval<BASE<T>>().to_str())>
+    template<template<typename> class BASE, typename T>
     class Hashable : public BASE<T>
     {
     public:
         Hashable(std::initializer_list<T> initializer_list)
             : BASE<T>(initializer_list)
         {
+            static_assert(std::is_member_function_pointer_v<decltype(&BASE<T>::to_str)>);
         }
 
         [[nodiscard]] uint64_t hash() const noexcept
@@ -65,7 +66,7 @@ namespace siren
 
     using HashableAnchor = Hashable<Anchor, size_t>;
 
-    template<typename Spec = siren::PeakSpectrogram, typename KeyType = uint64_t, class Timestamp = size_t>
+    template<typename Spec = siren::PeakSpectrogram, typename KeyType = uint64_t, typename Timestamp = size_t>
     class Fingerprint
     {
     public:
@@ -82,14 +83,11 @@ namespace siren
             return m_fingerprint.end();
         }
 
-        template<
-            typename InputIterator, typename = std::enable_if_t<
-                std::is_constructible_v<std::input_iterator_tag,
-                typename std::iterator_traits<InputIterator>::iterator_category>
-                >
-            >
+        template<typename InputIterator>
         Fingerprint(InputIterator begin, InputIterator end)
         {
+            static_assert(std::is_constructible_v<std::input_iterator_tag,
+                          typename std::iterator_traits<InputIterator>::iterator_category>);
             std::unordered_map<KeyType, Timestamp> incoming(begin, end);
             m_fingerprint = std::move(incoming);
         }
