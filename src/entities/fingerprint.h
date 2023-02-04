@@ -24,18 +24,13 @@ namespace siren
 
         [[nodiscard]] inline std::string to_str() const
         {
-            std::string str_array("[");
-            std::string sep;
-
+            std::string str_array{"["};
+            str_array.reserve(35);
             for (int i = 0; i < m_values.size(); ++i)
             {
-                str_array += sep;
-                str_array += std::to_string(m_values[i]);
-                if (i == 0)
-                {
-                    sep = ",";
-                }
+                str_array += std::to_string(m_values[i]) + ',';
             }
+            str_array.pop_back();
             str_array += "]";
             return str_array;
         }
@@ -47,11 +42,12 @@ namespace siren
     template<template<typename> class BASE, typename T>
     class Hashable : public BASE<T>
     {
+        static_assert(std::is_member_function_pointer_v<decltype(&BASE<T>::to_str)>);
+
     public:
         Hashable(std::initializer_list<T> initializer_list)
             : BASE<T>(initializer_list)
         {
-            static_assert(std::is_member_function_pointer_v<decltype(&BASE<T>::to_str)>);
         }
 
         [[nodiscard]] uint64_t hash() const noexcept
@@ -84,7 +80,7 @@ namespace siren
         }
 
         template<typename InputIterator>
-        Fingerprint(InputIterator begin, InputIterator end)
+        constexpr Fingerprint(InputIterator begin, InputIterator end)
         {
             static_assert(std::is_constructible_v<std::input_iterator_tag,
                           typename std::iterator_traits<InputIterator>::iterator_category>);
@@ -106,13 +102,24 @@ namespace siren
             std::cout << "fingerprint size: " << m_fingerprint.size() << std::endl;
         }
 
-        EngineStatus make_fingerprint(Spec&& spectrogram, size_t net_size, size_t min_peak_count)
+        std::vector<KeyType> get_hashes() const
+        {
+            std::vector<KeyType> hashes;
+            hashes.reserve(m_fingerprint.size());
+            for (const auto& bucket : m_fingerprint)
+            {
+                hashes.push_back(bucket.first);
+            }
+            return hashes;
+        }
+
+        CoreStatus make_fingerprint(Spec&& spectrogram, size_t net_size, size_t min_peak_count)
         {
             std::vector<std::pair<size_t, size_t>> ind = spectrogram.get_occupied_indices();
 
             if (ind.size() < min_peak_count)
             {
-                return EngineStatus::TooSilent;
+                return CoreStatus::PeaksTooSparse;
             }
 
             auto predicate = [&](const auto& first, const auto& second) {
@@ -127,7 +134,6 @@ namespace siren
             };
 
             std::sort(ind.begin(), ind.end(), predicate);
-
             for (size_t i = 6; i < ind.size() - net_size; i++)
             {
                 for (size_t j = i + 7; j < i + net_size; j++)
@@ -152,7 +158,7 @@ namespace siren
                     m_fingerprint.emplace(anchor.hash(), ts);
                 }
             }
-            return EngineStatus::OK;
+            return CoreStatus::OK;
         }
 
         constexpr static auto properties()

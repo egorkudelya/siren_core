@@ -34,7 +34,7 @@ namespace siren
     protected:
         using Triplet = Eigen::Triplet<float>;
 
-        [[nodiscard]] Eigen::SparseMatrix<float, Eigen::RowMajor> get_spectrogram_view() const;
+        [[nodiscard]] const Eigen::SparseMatrix<float, Eigen::RowMajor>& get_spectrogram_view() const;
 
     private:
         void init_spectrogram();
@@ -66,11 +66,11 @@ namespace siren
     class PeakSpectrogram : public Spectrogram
     {
     public:
-        PeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm, std::unique_ptr<siren::FFT> fft, float peak_threshold = 1.65);
+        PeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm, std::unique_ptr<siren::FFT> fft, float peak_threshold = 2);
         [[nodiscard]] std::vector<std::pair<size_t, size_t>> get_occupied_indices();
 
     protected:
-        [[nodiscard]] Eigen::SparseMatrix<float, Eigen::RowMajor> get_peak_spec_view() const;
+        [[nodiscard]] const Eigen::SparseMatrix<float, Eigen::RowMajor>& get_peak_spec_view() const;
 
     private:
         void init_peak_spectrogram();

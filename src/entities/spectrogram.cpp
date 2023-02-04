@@ -19,7 +19,7 @@ namespace siren
         make_linear_spectrogram();
     }
 
-    Eigen::SparseMatrix<float, Eigen::RowMajor> Spectrogram::get_spectrogram_view() const
+    const Eigen::SparseMatrix<float, Eigen::RowMajor>& Spectrogram::get_spectrogram_view() const
     {
         return m_spectrogram;
     }
@@ -129,7 +129,7 @@ namespace siren
         m_peak_spectrogram = Eigen::SparseMatrix<float, Eigen::RowMajor>(this->rows(), this->cols());
     }
 
-    Eigen::SparseMatrix<float, Eigen::RowMajor> PeakSpectrogram::get_peak_spec_view() const
+    const Eigen::SparseMatrix<float, Eigen::RowMajor>& PeakSpectrogram::get_peak_spec_view() const
     {
         return m_peak_spectrogram;
     }

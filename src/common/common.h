@@ -2,10 +2,10 @@
 
 namespace siren
 {
-    enum class EngineStatus
+    enum class CoreStatus
     {
         OK = 0,
-        TooSilent = -1,
+        PeaksTooSparse = -1,
         TargetFileDoesNotExist = -2
     };
 }

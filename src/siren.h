@@ -11,9 +11,9 @@
 namespace siren
 {
 
-    struct EngineParameters {
+    struct CoreParameters {
         /**
-        * default target parameters can by overridden by client in CreateEngine
+        * default target parameters can by overridden by client in CreateCore
         */
 
         enum class HashingPattern
@@ -26,46 +26,46 @@ namespace siren
         unsigned int    target_sampling_rate = 11025;
         unsigned int    target_channel_count = 1;
         size_t          target_window_size = 1024;
-        float           target_peak_threshold = 1.65;
+        float           target_peak_threshold = 1.85;
         size_t          min_peak_count = 160;
         size_t          target_net_size = 80;
         WindowFunction  target_window_function = WindowFunction::Hanning;
     };
 
-    struct EngineSpecification {
-        std::string name = "Siren Fingerprinting Engine";
-        EngineParameters engine_params;
+    struct CoreSpecification {
+        std::string name = "Siren Fingerprinting Core";
+        CoreParameters core_params;
     };
 
-    struct EngineReturnType {
+    struct CoreReturnType {
 
         explicit operator bool() const
         {
-            return code == EngineStatus::OK;
+            return code == CoreStatus::OK;
         }
 
         Fingerprint<siren::PeakSpectrogram> fingerprint{};
-        EngineStatus code;
+        CoreStatus code;
     };
 
-    class SirenEngine
+    class SirenCore
     {
     public:
-        explicit SirenEngine(siren::EngineSpecification&& engine_specification);
+        explicit SirenCore(siren::CoreSpecification&& core_specification);
 
-        static SirenEngine& get_instance()
+        static SirenCore& get_instance()
         {
             return *s_instance;
         }
 
-        [[nodiscard]] EngineReturnType make_fingerprint(const std::string& track_path) const;
+        [[nodiscard]] CoreReturnType make_fingerprint(const std::string& track_path) const;
 
     private:
-        EngineSpecification m_specification;
+        CoreSpecification m_specification;
 
     private:
-        static SirenEngine* s_instance;
+        static SirenCore* s_instance;
     };
 
-    std::unique_ptr<SirenEngine> CreateEngine();
+    std::unique_ptr<SirenCore> CreateCore();
 }// namespace siren
