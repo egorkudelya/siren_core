@@ -25,7 +25,7 @@ namespace siren
         [[nodiscard]] inline std::string to_str() const
         {
             std::string str_array{"["};
-            str_array.reserve(35);
+            str_array.reserve(m_expected_len);
             for (int i = 0; i < m_values.size(); ++i)
             {
                 str_array += std::to_string(m_values[i]) + ',';
@@ -36,6 +36,7 @@ namespace siren
         }
 
     private:
+        const int m_expected_len{35};
         std::vector<T> m_values;
     };
 
@@ -54,9 +55,7 @@ namespace siren
         {
             const std::string str = BASE<T>::to_str();
             uint64_t seed = 0;
-            uint64_t hash = xxh64::hash(str.c_str(), str.size(), seed);
-
-            return hash;
+            return xxh64::hash(str.c_str(), str.size(), seed);
         }
     };
 
