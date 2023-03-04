@@ -44,7 +44,6 @@ namespace siren
     class Hashable : public BASE<T>
     {
         static_assert(std::is_member_function_pointer_v<decltype(&BASE<T>::to_str)>);
-
     public:
         Hashable(std::initializer_list<T> initializer_list)
             : BASE<T>(initializer_list)
@@ -79,10 +78,9 @@ namespace siren
         }
 
         template<typename InputIterator>
-        constexpr Fingerprint(InputIterator begin, InputIterator end)
+        Fingerprint(InputIterator begin, InputIterator end)
         {
-            static_assert(std::is_constructible_v<std::input_iterator_tag,
-                          typename std::iterator_traits<InputIterator>::iterator_category>);
+            static_assert(std::is_same_v<typename std::unordered_map<KeyType, Timestamp>::iterator, InputIterator>);
             std::unordered_map<KeyType, Timestamp> incoming(begin, end);
             m_fingerprint = std::move(incoming);
         }
