@@ -25,19 +25,31 @@ namespace siren
         std::vector<float> window_func(window_size);
         for (size_t i = 0; i < window_size; i++)
         {
-            window_func[i] = 0.5f * (1 - cos(2.0 * M_PI * (i / ws)));
+            window_func[i] = 0.5f * (1 - cos(2 * M_PI * (i / ws)));
         }
         m_window_func = std::move(window_func);
     }
 
     void FFT::config_hamming_window(size_t window_size)
     {
-        std::cerr << "Hamming window function is not yet supported" << std::endl;
+        float ws = window_size - 1;
+        std::vector<float> window_func(window_size);
+        for (size_t i = 0; i < window_size; i++)
+        {
+            window_func[i] = 0.54f - (0.46f * cos(2 * M_PI * (i / ws)));
+        }
+        m_window_func = std::move(window_func);
     }
 
     void FFT::config_blackman_window(size_t window_size)
     {
-        std::cerr << "Blackman window function is not yet supported" << std::endl;
+        float ws = window_size - 1;
+        std::vector<float> window_func(window_size);
+        for (size_t i = 0; i < window_size; i++)
+        {
+            window_func[i] = 0.42f - 0.5 * cos((2 * M_PI * i)/(ws - 1)) + 0.08f * cos((4 * M_PI * i)/(ws - 1));
+        }
+        m_window_func = std::move(window_func);
     }
 
     size_t FFT::get_fft_size() const

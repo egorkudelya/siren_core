@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <cassert>
+#include <climits>
 #include <vector>
 #include <kiss_fft.h>
 
@@ -30,9 +32,7 @@ namespace siren
 
     private:
         void config_hanning_window(size_t window_size);
-
         void config_hamming_window(size_t window_size);
-
         void config_blackman_window(size_t window_size);
 
     protected:
