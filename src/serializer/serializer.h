@@ -54,6 +54,11 @@ namespace siren::json
             return m_data[name];
         }
 
+        std::any operator[](const std::string& name) const
+        {
+            return m_data.at(name);
+        }
+
         struct Compare {
             template<typename Pair>
             bool operator()(const Pair& lhs, const Pair& rhs) const
@@ -128,10 +133,10 @@ namespace siren::json
         }
 
         template<typename Key, typename Val>
-        void handle_map(std::string& str_repr, Key local_key, Val& local_val);
+        void handle_map(std::string& str_repr, Key local_key, const Val& local_val);
 
         template<typename Key, typename Val>
-        void handle_vector(std::string& str_repr, Key key, Val local_val)
+        void handle_vector(std::string& str_repr, Key key, const Val& local_val)
         {
             std::string str_key = t_string(key);
             if (!str_key.empty())
@@ -172,7 +177,7 @@ namespace siren::json
         }
 
         template<typename Key, typename Val>
-        void handle_map(std::string& str_repr, Key local_key, Val& local_val)
+        void handle_map(std::string& str_repr, Key local_key, const Val& local_val)
         {
             std::string str_key = t_string(local_key);
             if (!str_key.empty())
@@ -220,7 +225,7 @@ namespace siren::json
 
 
     template<typename Class>
-    std::string dumps(Json<Class>& json)
+    std::string dumps(const Json<Class>& json)
     {
         std::string str_repr{"{"};
         std::string sep;
@@ -270,7 +275,7 @@ namespace siren::json
     }
 
     template<typename Class>
-    Json<Class> to_json(Class& obj)
+    Json<Class> to_json(const Class& obj)
     {
         Json<Class> json;
         for_each<Class>([&](auto& property, size_t i) {
