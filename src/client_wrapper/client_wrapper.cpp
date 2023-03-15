@@ -1,14 +1,8 @@
-#include "client_wrapper.h"
 #include <charconv>
+#include "client_wrapper.h"
 
 namespace siren::client
 {
-    static std::string getenv(const std::string& name)
-    {
-        const char* val = std::getenv(name.c_str());
-        return val == nullptr ? std::string{} : std::string{val};
-    }
-
     std::unique_ptr<SirenCore> CreateCore()
     {
         CoreSpecification spec;

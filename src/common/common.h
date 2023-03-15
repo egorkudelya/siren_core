@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace siren
 {
@@ -8,4 +9,6 @@ namespace siren
         PeaksTooSparse = -1,
         TargetFileDoesNotExist = -2
     };
+
+    std::string getenv(const std::string& name);
 }
