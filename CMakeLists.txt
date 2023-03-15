@@ -7,7 +7,6 @@ option(BUILD_SIREN_TESTS "Build Siren with tests" TRUE)
 option(PROFILING "Build Siren with DTrace flags" FALSE)
 
 if (PROFILING)
-    set(CMAKE_OSX_ARCHITECTURES "arm64")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer")
 endif ()
@@ -15,7 +14,6 @@ endif ()
 #exclude kissfft tests
 option(KISSFFT_TEST "Build kissfft tests" OFF)
 option(KISSFFT_TOOLS "Build kissfft command-line tools" OFF)
-
 
 add_subdirectory(vendor/eigen)
 add_subdirectory(vendor/googletest)
@@ -78,9 +76,11 @@ target_include_directories(client_wrapper PUBLIC ${CMAKE_BINARY_DIR})
 if (BUILD_SIREN_TESTS)
     add_executable(test_decoder test/decoder.cpp)
     add_executable(test_entities test/entities.cpp)
+    add_executable(test_core test/core.cpp)
 
     set(libs gtest gtest_main client_wrapper)
 
     target_link_libraries(test_decoder ${libs})
     target_link_libraries(test_entities ${libs})
+    target_link_libraries(test_core ${libs})
 endif ()
