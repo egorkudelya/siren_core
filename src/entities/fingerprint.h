@@ -52,7 +52,7 @@ namespace siren
 
         [[nodiscard]] uint64_t hash() const noexcept
         {
-            const std::string str = BASE<T>::to_str();
+            std::string str = BASE<T>::to_str();
             uint64_t seed = 0;
             return xxh64::hash(str.c_str(), str.size(), seed);
         }
