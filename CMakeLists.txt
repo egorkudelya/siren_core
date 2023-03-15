@@ -12,8 +12,6 @@ if (PROFILING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer")
 endif ()
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
-
 #exclude kissfft tests
 option(KISSFFT_TEST "Build kissfft tests" OFF)
 option(KISSFFT_TOOLS "Build kissfft command-line tools" OFF)
@@ -50,13 +48,32 @@ set_target_properties(miniaudio PROPERTIES LINKER_LANGUAGE C)
 target_link_libraries(siren_core ${OpenCV_LIBS} Eigen3::Eigen kissfft miniaudio)
 
 add_library(client_wrapper STATIC
+
+        src/client_wrapper/abstract_request.h
+        src/client_wrapper/abstract_http_client.h
+        src/client_wrapper/abstract_http_client.cpp
+
+        src/client_wrapper/http_client_factory.h
+        src/client_wrapper/http_client_factory.cpp
+
+        src/client_wrapper/rest/rest_client.h
+        src/client_wrapper/rest/rest_client.cpp
+        src/client_wrapper/rest/rest_request.h
+        src/client_wrapper/rest/rest_request.cpp
+
+        src/client_wrapper/grpc/grpc_client.cpp
+        src/client_wrapper/grpc/grpc_client.h
+        src/client_wrapper/grpc/grpc_request.cpp
+        src/client_wrapper/grpc/grpc_request.h
+
         src/client_wrapper/client_wrapper.cpp
         src/client_wrapper/client_wrapper.h
-        src/client_wrapper/http_client.cpp
-        src/client_wrapper/http_client.h
         )
 
-target_link_libraries(client_wrapper siren_core restclient-cpp)
+add_subdirectory(src/proto)
+
+target_link_libraries(client_wrapper siren_core_proto siren_core restclient-cpp)
+target_include_directories(client_wrapper PUBLIC ${CMAKE_BINARY_DIR})
 
 if (BUILD_SIREN_TESTS)
     add_executable(test_decoder test/decoder.cpp)

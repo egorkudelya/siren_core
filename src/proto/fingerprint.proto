@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package fingerprint;
+
+message FindTrackByFingerprintRequest {
+  map<uint64, uint64> fingerprint = 1;
+}
+
+message FindTrackByFingerprintResponse {
+  string song_metadata = 1;
+}
+
+service SirenFingerprint {
+
+  rpc FindTrackByFingerprint(FindTrackByFingerprintRequest) returns (FindTrackByFingerprintResponse) {
+
+  }
+}
