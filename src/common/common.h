@@ -1,5 +1,7 @@
 #pragma once
+#include <iostream>
 #include <string>
+#include <cstdlib>
 
 #define release_assert(exp, message) { if (!(exp)) {std::cerr << (message) << std::endl; std::abort();}}
 
