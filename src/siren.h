@@ -67,5 +67,5 @@ namespace siren
         static SirenCore* s_instance;
     };
 
-    std::unique_ptr<SirenCore> CreateCore();
+    SirenCore* CreateCore();
 }// namespace siren

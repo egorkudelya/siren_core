@@ -1,9 +1,6 @@
 [submodule "vendor/googletest"]
 	path = vendor/googletest
 	url = https://github.com/google/googletest.git
-[submodule "vendor/opencv"]
-	path = vendor/opencv
-	url = https://github.com/opencv/opencv.git
 [submodule "vendor/eigen"]
 	path = vendor/eigen
 	url = https://gitlab.com/libeigen/eigen.git
@@ -13,9 +10,3 @@
 [submodule "vendor/kissfft"]
 	path = vendor/kissfft
 	url = https://github.com/mborgerding/kissfft.git
-[submodule "vendor/restclient-cpp"]
-	path = vendor/restclient-cpp
-	url = https://github.com/mrtazz/restclient-cpp.git
-[submodule "vendor/grpc"]
-	path = vendor/grpc
-	url = https://github.com/grpc/grpc.git

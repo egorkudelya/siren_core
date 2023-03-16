@@ -7,10 +7,6 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 
-#include <opencv2/core/eigen.hpp>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/highgui/highgui.hpp>
-
 #include "../decoder/pcm.h"
 #include "../fft/fft.h"
 #include "freq_bin.h"
@@ -80,14 +76,6 @@ namespace siren
 
     private:
         Eigen::SparseMatrix<float, Eigen::RowMajor> m_peak_spectrogram;
-    };
-
-    class SaveablePeakSpectrogram : public PeakSpectrogram
-    {
-    public:
-        SaveablePeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm, std::unique_ptr<siren::FFT> fft, float peak_threshold = 1.65);
-
-        void as_png(const std::string& path);
     };
 
 }// namespace siren

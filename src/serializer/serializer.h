@@ -7,7 +7,6 @@
 
 #include "traits.h"
 
-// TODO add a deserializer in case I ever need it
 namespace siren::json
 {
 

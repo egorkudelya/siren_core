@@ -1,9 +1,10 @@
-#include <charconv>
 #include "client_wrapper.h"
+#include "../common/common.h"
+#include <charconv>
 
 namespace siren::client
 {
-    std::unique_ptr<SirenCore> CreateCore()
+    SirenCore* CreateCore()
     {
         CoreSpecification spec;
 
@@ -66,76 +67,35 @@ namespace siren::client
                 spec.core_params.target_window_function = WindowFunction::Blackman;
             }
         }
-        return std::make_unique<SirenCore>(std::move(spec));
+        return new SirenCore(std::move(spec));
     }
 
     ClientWrapper::ClientWrapper()
     {
         m_core = CreateCore();
-        m_http_client = HttpClientFactory::CreateHttpClient(HttpClientType::REST, {});
     }
 
-    ClientWrapper::ClientWrapper(const HttpClientPtr& http_client)
+    ClientWrapper::~ClientWrapper()
     {
-        m_core = CreateCore();
-        m_http_client = http_client;
+        delete m_core;
     }
 
-    ClientWrapper::ClientWrapper(ClientWrapper&& other) noexcept
+    std::string ClientWrapper::process_track(const std::string& track_path)
     {
-        m_core = std::move(other.m_core);
-        m_http_client = std::move(other.m_http_client);
-    }
-
-    ClientWrapper& ClientWrapper::operator=(ClientWrapper&& other) noexcept
-    {
-        m_core = std::move(other.m_core);
-        m_http_client = std::move(other.m_http_client);
-        return *this;
-    }
-
-    std::string ClientWrapper::process_track(const std::string& track_path, const std::string& url)
-    {
-        auto generate_response = [](const std::string& core_code, const std::string& http_code, const std::string& body)
+        auto generate_response = [](const std::string& core_code, const std::string& body)
         {
             return "{"
-                   "\"http_code\":" + http_code + ","
-                   "\"body\":" + body + ","
+                   "\"body\": " + body + ","
                    "\"core_code\": " + core_code +
                    "}";
         };
-
         siren::CoreReturnType core_response = m_core->make_fingerprint(track_path);
         if (!core_response)
         {
-            return generate_response(std::to_string((int)core_response.code),
-                                     "null",
-                                     "core failed to fingerprint the track"
-                                     );
+            return generate_response(std::to_string((int)core_response.code), "core failed to fingerprint the track");
         }
-        Response serv_response;
-        RequestPtr req;
-        if (m_http_client->get_type() == HttpClientType::REST)
-        {
-            siren::json::Json fingerprint_obj = siren::json::to_json(core_response.fingerprint);
-            std::string json_str = siren::json::dumps(fingerprint_obj);
-            req = std::make_shared<RestRequest>(std::forward<std::string>(json_str), url, "application/json", RequestType::POST);
-        }
-        else if (m_http_client->get_type() == HttpClientType::RPC)
-        {
-            req = std::make_shared<GrpcRequest>(std::forward<decltype(core_response.fingerprint)>(core_response.fingerprint));
-        }
-        else
-        {
-            return generate_response(std::to_string((int)core_response.code),
-                                     "null",
-                                     "request configuration failed, reason: unsupported http client type"
-                                     );
-        }
-        serv_response = m_http_client->req_process_track(req);
-        std::string body = serv_response.code != 200 ? "null" : serv_response.m_body;
-
-        return generate_response(std::to_string((int)core_response.code), std::to_string(serv_response.code), body);
+        siren::json::Json fingerprint_obj = siren::json::to_json(core_response.fingerprint);
+        return generate_response(std::to_string((int)core_response.code), siren::json::dumps(fingerprint_obj));
     }
 
 }// namespace siren::client
