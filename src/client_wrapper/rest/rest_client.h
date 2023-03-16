@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #include <string>
 #include "rest_request.h"
 #include "../abstract_http_client.h"

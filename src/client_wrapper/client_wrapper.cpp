@@ -43,7 +43,7 @@ namespace siren::client
             convert_to_type(peak_threshold, spec.core_params.target_peak_threshold);
         #else
             float peak_threshold_f = std::stof(peak_threshold);
-            assert(!isnan(peak_threshold_f));
+            release_assert(!isnan(peak_threshold_f), "peak_threshold_f is nan");
             spec.core_params.target_peak_threshold = peak_threshold_f;
         #endif
         }
