@@ -13,7 +13,7 @@ namespace siren
 
     struct CoreParameters {
         /**
-        * default target parameters can by overridden by client in CreateCore
+        * default target parameters can be overwritten by client in CreateCore
         */
 
         enum class HashingPattern
@@ -44,14 +44,14 @@ namespace siren
             return code == CoreStatus::OK;
         }
 
-        Fingerprint<siren::PeakSpectrogram> fingerprint{};
+        Fingerprint<PeakSpectrogram> fingerprint{};
         CoreStatus code;
     };
 
     class SirenCore
     {
     public:
-        explicit SirenCore(siren::CoreSpecification&& core_specification);
+        explicit SirenCore(CoreSpecification&& core_specification);
 
         static SirenCore& get_instance()
         {

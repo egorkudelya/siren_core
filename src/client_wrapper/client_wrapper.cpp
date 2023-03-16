@@ -99,8 +99,8 @@ namespace siren::client
         auto generate_response = [](const std::string& core_code, const std::string& http_code, const std::string& body)
         {
             return "{"
-                   "\"http_code\": null,"
-                   "\"body\": null, "
+                   "\"http_code\":" + http_code + ","
+                   "\"body\":" + body + ","
                    "\"core_code\": " + core_code +
                    "}";
         };
@@ -110,7 +110,7 @@ namespace siren::client
         {
             return generate_response(std::to_string((int)core_response.code),
                                      "null",
-                                     "core failed to make a fingerprint of the track"
+                                     "core failed to fingerprint the track"
                                      );
         }
         Response serv_response;
