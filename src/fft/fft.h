@@ -2,10 +2,10 @@
 
 #include <iostream>
 #include <cmath>
-#include <cassert>
 #include <climits>
 #include <vector>
 #include <kiss_fft.h>
+#include "../common/common.h"
 
 namespace siren
 {

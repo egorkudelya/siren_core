@@ -7,7 +7,7 @@ namespace siren
     SirenCore::SirenCore(siren::CoreSpecification&& core_specification)
         : m_specification(std::move(core_specification))
     {
-        assert(!s_instance && "Siren core already exists");
+        release_assert(!s_instance, "Siren core already exists");
         s_instance = this;
     }
 

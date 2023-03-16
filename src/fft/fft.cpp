@@ -54,7 +54,7 @@ namespace siren
 
     size_t FFT::get_fft_size() const
     {
-        assert(m_fft_out_r.size() == m_fft_out_i.size());
+        release_assert(m_fft_out_r.size() == m_fft_out_i.size(), "m_fft_out_r.size() != m_fft_out_i.size()");
         return m_fft_out_r.size();
     }
 
@@ -76,7 +76,7 @@ namespace siren
     KissFFT::KissFFT(WindowFunction w_func, size_t window_size)
         : FFT(w_func, window_size)
     {
-        assert(window_size < INT_MAX);
+        release_assert(window_size < INT_MAX, "window_size exceeds INT_MAX limit")
         config = kiss_fft_alloc((int)m_window_size, 0, nullptr, nullptr);
         fft_in = new kiss_fft_cpx[m_window_size];
         fft_out = new kiss_fft_cpx[m_window_size];
@@ -91,7 +91,7 @@ namespace siren
 
     void KissFFT::process_window(std::vector<float>&& window)
     {
-        assert(window.size() == m_window_size);
+        release_assert(window.size() == m_window_size, "window.size() != m_window_size");
 
         std::vector<float> fft_out_r, fft_out_i;
         for (size_t i = 0; i < m_window_size; i++)
