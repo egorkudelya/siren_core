@@ -91,8 +91,9 @@ namespace siren
         template<typename InputIterator>
         Fingerprint(InputIterator begin, InputIterator end)
         {
-            static_assert(std::is_same_v<Iterator, InputIterator> || std::is_same_v<ConstIterator, InputIterator>);
-            std::unordered_map<KeyType, Timestamp> incoming(begin, end);
+            using MapType = std::unordered_map<KeyType, Timestamp>;
+            static_assert(std::is_constructible_v<MapType, InputIterator, InputIterator>);
+            MapType incoming(begin, end);
             m_fingerprint = std::move(incoming);
         }
 
