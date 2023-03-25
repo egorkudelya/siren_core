@@ -66,6 +66,7 @@ namespace siren
     public:
         Fingerprint() = default;
         using Iterator = typename std::unordered_map<KeyType, Timestamp>::iterator;
+        using ConstIterator = typename std::unordered_map<KeyType, Timestamp>::const_iterator;
 
         Iterator begin()
         {
@@ -77,10 +78,20 @@ namespace siren
             return m_fingerprint.end();
         }
 
+        ConstIterator cbegin()
+        {
+            return m_fingerprint.cbegin();
+        }
+
+        ConstIterator cend()
+        {
+            return m_fingerprint.cend();
+        }
+
         template<typename InputIterator>
         Fingerprint(InputIterator begin, InputIterator end)
         {
-            static_assert(std::is_same_v<typename std::unordered_map<KeyType, Timestamp>::iterator, InputIterator>);
+            static_assert(std::is_same_v<Iterator, InputIterator> || std::is_same_v<ConstIterator, InputIterator>);
             std::unordered_map<KeyType, Timestamp> incoming(begin, end);
             m_fingerprint = std::move(incoming);
         }
