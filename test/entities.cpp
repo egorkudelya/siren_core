@@ -41,3 +41,13 @@ TEST(Fingerprint, Trivial)
     std::unordered_map<size_t, size_t> map(fingerprint.begin(), fingerprint.end());
     EXPECT_EQ(map.size(), fingerprint.get_hashes().size());
 }
+
+TEST(Fingerprint, RangeConstructor)
+{
+    std::unordered_map<uint64_t, size_t> data;
+    data[12345] = 54321;
+
+    siren::Fingerprint<> f1(data.begin(), data.end());
+    siren::Fingerprint<> f2(data.cbegin(), data.cend());
+    EXPECT_EQ(f1, f2);
+}
