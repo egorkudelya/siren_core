@@ -35,7 +35,7 @@ TEST(Fingerprint, Trivial)
     const int min_peak_count = 160;
 
     siren::PeakSpectrogram spectrogram = init_spectrogram(path, sampling_rate, window_size, channels);
-    siren::Fingerprint<> fingerprint;
+    siren::Fingerprint fingerprint;
     fingerprint.make_fingerprint(std::move(spectrogram), net_size, min_peak_count);
 
     std::unordered_map<size_t, size_t> map(fingerprint.begin(), fingerprint.end());
@@ -47,7 +47,7 @@ TEST(Fingerprint, RangeConstructor)
     std::unordered_map<uint64_t, size_t> data;
     data[12345] = 54321;
 
-    siren::Fingerprint<> f1(data.begin(), data.end());
-    siren::Fingerprint<> f2(data.cbegin(), data.cend());
+    siren::Fingerprint f1(data.begin(), data.end());
+    siren::Fingerprint f2(data.cbegin(), data.cend());
     EXPECT_EQ(f1, f2);
 }

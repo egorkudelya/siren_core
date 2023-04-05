@@ -33,10 +33,9 @@ namespace siren
         }
 
         siren::PeakSpectrogram spectrogram(std::move(audio), std::move(fft), target_peak_threshold);
-
         siren::Fingerprint fingerprint;
-        CoreStatus code = fingerprint.make_fingerprint(std::move(spectrogram), target_net_size, min_peak_count);
 
+        CoreStatus code = fingerprint.make_fingerprint(std::move(spectrogram), target_net_size, min_peak_count);
         return_obj.code = code;
         return_obj.fingerprint = std::move(fingerprint);
 

@@ -60,30 +60,33 @@ namespace siren
 
     using HashableAnchor = Hashable<Anchor, size_t>;
 
-    template<typename Spec = siren::PeakSpectrogram, typename KeyType = uint64_t, typename Timestamp = size_t>
+    template<typename KeyType = uint64_t, typename Timestamp = size_t>
     class Fingerprint
     {
     public:
-        Fingerprint() = default;
-        using Iterator = typename std::unordered_map<KeyType, Timestamp>::iterator;
-        using ConstIterator = typename std::unordered_map<KeyType, Timestamp>::const_iterator;
+        using MapType = std::unordered_map<KeyType, Timestamp>;
 
-        Iterator begin()
+        using iterator = typename MapType::iterator;
+        using const_iterator = typename MapType::const_iterator;
+
+        Fingerprint() = default;
+
+        iterator begin()
         {
             return m_fingerprint.begin();
         }
 
-        Iterator end()
+        iterator end()
         {
             return m_fingerprint.end();
         }
 
-        ConstIterator cbegin()
+        const_iterator cbegin()
         {
             return m_fingerprint.cbegin();
         }
 
-        ConstIterator cend()
+        const_iterator cend()
         {
             return m_fingerprint.cend();
         }
@@ -91,7 +94,6 @@ namespace siren
         template<typename InputIterator>
         Fingerprint(InputIterator begin, InputIterator end)
         {
-            using MapType = std::unordered_map<KeyType, Timestamp>;
             static_assert(std::is_constructible_v<MapType, InputIterator, InputIterator>);
             MapType incoming(begin, end);
             m_fingerprint = std::move(incoming);
@@ -122,6 +124,7 @@ namespace siren
             return hashes;
         }
 
+        template<typename Spec = siren::PeakSpectrogram>
         CoreStatus make_fingerprint(Spec&& spectrogram, size_t net_size, size_t min_peak_count)
         {
             std::vector<std::pair<size_t, size_t>> ind = spectrogram.get_occupied_indices();
@@ -177,7 +180,7 @@ namespace siren
         }
 
     private:
-        std::unordered_map<KeyType, Timestamp> m_fingerprint;
+        MapType m_fingerprint;
     };
 
 }// namespace siren
