@@ -44,7 +44,7 @@ namespace siren
             return code == CoreStatus::OK;
         }
 
-        Fingerprint<PeakSpectrogram> fingerprint{};
+        Fingerprint<> fingerprint{};
         CoreStatus code;
     };
 

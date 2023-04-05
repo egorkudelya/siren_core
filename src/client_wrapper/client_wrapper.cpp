@@ -115,22 +115,17 @@ namespace siren::client
         }
         Response serv_response;
         RequestPtr req;
-        if (m_http_client->get_type() == HttpClientType::REST)
+        using FingerprintType = decltype(core_response.fingerprint);
+        switch (m_http_client->get_type())
         {
-            siren::json::Json fingerprint_obj = siren::json::to_json(core_response.fingerprint);
-            std::string json_str = siren::json::dumps(fingerprint_obj);
-            req = std::make_shared<RestRequest>(std::forward<std::string>(json_str), url, "application/json", RequestType::POST);
-        }
-        else if (m_http_client->get_type() == HttpClientType::RPC)
-        {
-            req = std::make_shared<GrpcRequest>(std::forward<decltype(core_response.fingerprint)>(core_response.fingerprint));
-        }
-        else
-        {
-            return generate_response(std::to_string((int)core_response.code),
-                                     "null",
-                                     "request configuration failed, reason: unsupported http client type"
-                                     );
+            case HttpClientType::RPC:
+                req = std::make_shared<GrpcRequest>(std::forward<FingerprintType>(core_response.fingerprint));
+                break;
+            default:
+                siren::json::Json fingerprint_obj = siren::json::to_json(core_response.fingerprint);
+                std::string json_str = siren::json::dumps<FingerprintType>(fingerprint_obj);
+                req = std::make_shared<RestRequest>(std::forward<std::string>(json_str), url, "application/json", RequestType::POST);
+                break;
         }
         serv_response = m_http_client->req_process_track(req);
         std::string body = serv_response.code != 200 ? "null" : serv_response.m_body;
