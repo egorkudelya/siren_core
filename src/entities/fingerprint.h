@@ -81,12 +81,12 @@ namespace siren
             return m_fingerprint.end();
         }
 
-        const_iterator cbegin()
+        const_iterator cbegin() const
         {
             return m_fingerprint.cbegin();
         }
 
-        const_iterator cend()
+        const_iterator cend() const
         {
             return m_fingerprint.cend();
         }
