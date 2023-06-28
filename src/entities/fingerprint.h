@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "spectrogram.h"
+#include "kdtree.h"
 #include "../common/common.h"
 #include "../common/hash/xxh64.h"
 #include "../serializer/serializer.h"
@@ -24,14 +25,13 @@ namespace siren
 
         [[nodiscard]] inline std::string to_str() const
         {
-            std::string str_array{"["};
+            std::string str_array;
             str_array.reserve(m_expected_len);
             for (int i = 0; i < m_values.size(); ++i)
             {
                 str_array += std::to_string(m_values[i]) + ',';
             }
             str_array.pop_back();
-            str_array += "]";
             return str_array;
         }
 
@@ -91,6 +91,11 @@ namespace siren
             return m_fingerprint.cend();
         }
 
+        size_t get_size() const
+        {
+            return m_fingerprint.size();
+        }
+
         template<typename InputIterator>
         Fingerprint(InputIterator begin, InputIterator end)
         {
@@ -104,7 +109,7 @@ namespace siren
             return lhs.m_fingerprint == rhs.m_fingerprint;
         }
 
-        void print()
+        void print() const
         {
             for (const auto& bucket : m_fingerprint)
             {
@@ -125,13 +130,22 @@ namespace siren
         }
 
         template<typename Spec = siren::PeakSpectrogram>
-        CoreStatus make_fingerprint(Spec&& spectrogram, size_t net_size, size_t min_peak_count)
+        CoreStatus make_fingerprint(Spec&& spectrogram, size_t tile_size, size_t min_peak_count)
         {
-            std::vector<std::pair<size_t, size_t>> ind = spectrogram.get_occupied_indices();
-
-            if (ind.size() < min_peak_count)
+            Eigen::SparseMatrix<float, Eigen::RowMajor> space = spectrogram.get_peak_spec_view();
+            if (space.nonZeros() < min_peak_count)
             {
                 return CoreStatus::PeaksTooSparse;
+            }
+
+            if (tile_size > space.rows() || tile_size > space.cols())
+            {
+                return CoreStatus::CoreParamsFatalError;
+            }
+
+            if (tile_size < spectrogram.get_time_resolution() || tile_size < spectrogram.get_freq_resolution())
+            {
+                return CoreStatus::CoreParamsLogicError;
             }
 
             auto predicate = [&](const auto& first, const auto& second) {
@@ -145,29 +159,75 @@ namespace siren
                 return first.second < second.second;
             };
 
-            std::sort(ind.begin(), ind.end(), predicate);
-            for (size_t i = 6; i < ind.size() - net_size; i++)
+
+            auto hash_tile = [predicate, this](Eigen::SparseMatrix<float, Eigen::RowMajor>&& block, int ioffset, int joffset)
             {
-                for (size_t j = i + 7; j < i + net_size; j++)
+                if (block.nonZeros() < 4)
                 {
-                    if  (  ind[j].second - ind[i-4].second == 0
-                        || ind[j].second - ind[i-2].second == 0
-                        || ind[j].second - ind[i].second == 0)
+                    return;
+                }
+
+                std::vector<std::array<Eigen::Index, 2>> points;
+                for (int i = 0; i < block.outerSize(); i++)
+                {
+                    for (auto it = Eigen::SparseMatrix<float, Eigen::RowMajor>::InnerIterator(block, i); it; ++it)
+                    {
+                        points.push_back({it.row() + ioffset, it.col() + joffset});
+                    }
+                }
+
+                KDTree<Eigen::Index, 2> tree(points);
+
+                for (auto[freq, ts]: points)
+                {
+                    // {freq, ts} -> self
+                    auto neighbors = tree.nearest_neighbors({freq, ts});
+                    neighbors.erase({freq, ts});
+
+                    if (neighbors.size() < 3)
                     {
                         continue;
                     }
 
-                    Timestamp ts = ind[j].second;
+                    // avoiding dt == 0 to minimize collisions
+                    std::vector<std::pair<uint64_t, uint64_t>> valid;
+                    for (auto&& neighbor : neighbors)
+                    {
+                        if (neighbor.at(1) != ts)
+                        {
+                            valid.emplace_back(std::move(neighbor));
+                        }
+                    }
+
+                    if (valid.size() < 3)
+                    {
+                        continue;
+                    }
+
+                    std::sort(valid.begin(), valid.end(), predicate);
                     HashableAnchor anchor
                         {
-                        ind[i-4].first, ind[i-2].first,
-                        ind[i].first,   ind[j].first,
-                        ind[j].second - ind[i-4].second,
-                        ind[j].second - ind[i-2].second,
-                        ind[j].second - ind[i].second
+                            valid[0].first, valid[1].first,
+                            valid[2].first, (unsigned)freq,
+                            ts - valid[0].second,
+                            ts - valid[1].second,
+                            ts - valid[2].second
                         };
-
                     m_fingerprint.emplace(anchor.hash(), ts);
+                }
+
+            };
+
+            // 50% overlapping tiles
+            for (size_t i = 0; i < space.rows() - tile_size; i += tile_size/2)
+            {
+                for (size_t j = 0; j < space.cols() - tile_size; j += tile_size/2)
+                {
+                    Eigen::SparseMatrix<float, Eigen::RowMajor> block = space.block(i, j, tile_size, tile_size);
+                    if (block.nonZeros() >= 4)
+                    {
+                        hash_tile(std::move(block), i, j);
+                    }
                 }
             }
             return CoreStatus::OK;

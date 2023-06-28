@@ -1,1 +1,10 @@
 /audio/
+.DS_Store
+.idea/
+/cmake-build-debug-coverage/
+/cmake-build-debug/
+/cmake-build-release/
+cmake-build-relwithdebinfo/
+src/.DS_Store
+src/client_wrapper/.DS_Store
+vendor/.DS_Store

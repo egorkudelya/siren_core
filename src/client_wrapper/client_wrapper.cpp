@@ -1,5 +1,4 @@
 #include "client_wrapper.h"
-#include "../common/common.h"
 #include <charconv>
 
 namespace siren::client
@@ -11,9 +10,9 @@ namespace siren::client
         std::string sampling_rate = getenv("SAMPLING_RATE");
         std::string channel_count = getenv("CHANNEL_COUNT");
         std::string window_size = getenv("WINDOW_SIZE");
-        std::string peak_threshold = getenv("PEAK_THRESHOLD");
+        std::string zscore = getenv("CORE_PEAK_ZSCORE");
         std::string min_peak_count = getenv("MIN_PEAK_COUNT");
-        std::string net_size = getenv("NET_SIZE");
+        std::string tile_size = getenv("TILE_SIZE");
         std::string window_function = getenv("WINDOW_FUNCTION");
 
         auto convert_to_type = [](const std::string& src, auto& target)
@@ -38,23 +37,23 @@ namespace siren::client
         {
             convert_to_type(window_size, spec.core_params.target_window_size);
         }
-        if (!peak_threshold.empty())
+        if (!zscore.empty())
         {
         #ifndef __clang__
-            convert_to_type(peak_threshold, spec.core_params.target_peak_threshold);
+            convert_to_type(zscore, spec.core_params.target_zscore);
         #else
-            float peak_threshold_f = std::stof(peak_threshold);
-            release_assert(!isnan(peak_threshold_f), "peak_threshold_f is nan");
-            spec.core_params.target_peak_threshold = peak_threshold_f;
+            float zscore_f = std::stof(zscore);
+            release_assert(!isnan(zscore_f), "zscore_f is nan");
+            spec.core_params.target_zscore = zscore_f;
         #endif
         }
         if (!min_peak_count.empty())
         {
             convert_to_type(min_peak_count, spec.core_params.min_peak_count);
         }
-        if (!net_size.empty())
+        if (!tile_size.empty())
         {
-            convert_to_type(net_size, spec.core_params.target_net_size);
+            convert_to_type(tile_size, spec.core_params.target_tile_size);
         }
         if (!window_function.empty())
         {

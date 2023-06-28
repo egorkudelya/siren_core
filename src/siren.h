@@ -26,9 +26,9 @@ namespace siren
         unsigned int    target_sampling_rate = 11025;
         unsigned int    target_channel_count = 1;
         size_t          target_window_size = 1024;
-        float           target_peak_threshold = 1.85;
-        size_t          min_peak_count = 160;
-        size_t          target_net_size = 80;
+        float           target_zscore = 2.5;
+        size_t          min_peak_count = 200;
+        size_t          target_tile_size = 150;
         WindowFunction  target_window_function = WindowFunction::Hanning;
     };
 
