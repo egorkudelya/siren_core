@@ -38,8 +38,7 @@ add_library(siren_core STATIC
 add_library(miniaudio STATIC vendor/miniaudio/extras/miniaudio_split/miniaudio.c)
 set_target_properties(miniaudio PROPERTIES LINKER_LANGUAGE C)
 
-find_package(OpenCV REQUIRED)
-target_link_libraries(siren_core ${OpenCV_LIBS} Eigen3::Eigen kissfft miniaudio)
+target_link_libraries(siren_core Eigen3::Eigen kissfft miniaudio)
 
 if (BUILD_SIREN_TESTS)
 add_library(test_deps STATIC test/common.cpp test/common.h)
