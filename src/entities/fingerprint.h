@@ -195,7 +195,7 @@ namespace siren
                     {
                         if (neighbor.at(1) != ts)
                         {
-                            valid.emplace_back(std::move(neighbor));
+                            valid.emplace_back(std::make_pair(neighbor[0], neighbor[1]));
                         }
                     }
 
