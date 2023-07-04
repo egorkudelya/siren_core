@@ -14,13 +14,14 @@ namespace siren::client
         std::string min_peak_count = getenv("MIN_PEAK_COUNT");
         std::string tile_size = getenv("TILE_SIZE");
         std::string window_function = getenv("WINDOW_FUNCTION");
+        std::string stride_coeff = getenv("BLOCK_STRIDE_COEFF");
 
         auto convert_to_type = [](const std::string& src, auto& target)
         {
             using TargetType = std::remove_reference_t<decltype(target)>;
             TargetType value;
             auto [p, ec] = std::from_chars(src.data(), src.data() + src.size(), value);
-            if (ec != std::errc())
+            if (ec == std::errc())
             {
                 target = value;
             }
@@ -54,6 +55,16 @@ namespace siren::client
         if (!tile_size.empty())
         {
             convert_to_type(tile_size, spec.core_params.target_tile_size);
+        }
+        if (!stride_coeff.empty())
+        {
+        #ifndef __clang__
+            convert_to_type(stride_coeff, spec.core_params.stride_coeff);
+        #else
+            float stride_coeff_f = std::stof(stride_coeff);
+            release_assert(!isnan(stride_coeff_f), "stride_coeff_f is nan");
+            spec.core_params.stride_coeff = stride_coeff_f;
+        #endif
         }
         if (!window_function.empty())
         {

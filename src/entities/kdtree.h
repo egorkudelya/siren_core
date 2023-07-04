@@ -109,6 +109,34 @@ public:
         init_tree(std::move(points));
     }
 
+    ~KDTree()
+    {
+        clear(m_root);
+    }
+
+    NeighborSet nearest_neighbors(std::array<CoordType, dims>&& point_coords) const
+    {
+        NeighborSet neighbors;
+        nearest_neighbors(m_root, PointType{std::move(point_coords)}, 0, neighbors);
+        return neighbors;
+    }
+
+    size_t get_size() const
+    {
+        return m_size;
+    }
+
+private:
+    void clear(Node* node)
+    {
+        if (node != nullptr)
+        {
+            clear(node->m_left);
+            clear(node->m_right);
+            delete node;
+        }
+    }
+
     template<typename Range>
     void init_tree(Range&& range)
     {
@@ -136,34 +164,6 @@ public:
         }
     }
 
-    ~KDTree()
-    {
-        clear(m_root);
-    }
-
-    void clear(Node* node)
-    {
-        if (node != nullptr)
-        {
-            clear(node->m_left);
-            clear(node->m_right);
-            delete node;
-        }
-    }
-
-    auto nearest_neighbors(std::array<CoordType, dims>&& pointCoords) const
-    {
-        NeighborSet neighbors;
-        nearest_neighbors(m_root, PointType{std::move(pointCoords)}, 0, neighbors);
-        return neighbors;
-    }
-
-    size_t get_size() const
-    {
-        return m_size;
-    }
-
-private:
     Node* closest_node(Node* n0, Node* n1, const PointType& target) const
     {
         if (n0 == nullptr)

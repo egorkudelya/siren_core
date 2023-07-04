@@ -19,6 +19,7 @@ namespace siren
         const size_t target_tile_size = m_specification.core_params.target_tile_size;
         const float target_zscore = m_specification.core_params.target_zscore;
         const size_t min_peak_count = m_specification.core_params.min_peak_count;
+        const float stride_coeff = m_specification.core_params.stride_coeff;
         siren::WindowFunction target_window_function = m_specification.core_params.target_window_function;
 
         CoreReturnType return_obj;
@@ -35,7 +36,7 @@ namespace siren
         siren::PeakSpectrogram spectrogram(std::move(audio), std::move(fft), target_zscore);
         siren::Fingerprint fingerprint;
 
-        CoreStatus code = fingerprint.make_fingerprint(std::move(spectrogram), target_tile_size, min_peak_count);
+        CoreStatus code = fingerprint.make_fingerprint(std::move(spectrogram), target_tile_size, min_peak_count, stride_coeff);
         return_obj.code = code;
         return_obj.fingerprint = std::move(fingerprint);
 
