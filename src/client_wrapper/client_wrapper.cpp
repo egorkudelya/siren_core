@@ -12,9 +12,9 @@ namespace siren::client
         std::string window_size = getenv("WINDOW_SIZE");
         std::string zscore = getenv("CORE_PEAK_ZSCORE");
         std::string min_peak_count = getenv("MIN_PEAK_COUNT");
-        std::string tile_size = getenv("TILE_SIZE");
+        std::string block_size = getenv("CORE_BLOCK_SIZE");
         std::string window_function = getenv("WINDOW_FUNCTION");
-        std::string stride_coeff = getenv("BLOCK_STRIDE_COEFF");
+        std::string stride_coeff = getenv("CORE_BLOCK_STRIDE_COEFF");
 
         auto convert_to_type = [](const std::string& src, auto& target)
         {
@@ -52,9 +52,9 @@ namespace siren::client
         {
             convert_to_type(min_peak_count, spec.core_params.min_peak_count);
         }
-        if (!tile_size.empty())
+        if (!block_size.empty())
         {
-            convert_to_type(tile_size, spec.core_params.target_tile_size);
+            convert_to_type(block_size, spec.core_params.target_block_size);
         }
         if (!stride_coeff.empty())
         {

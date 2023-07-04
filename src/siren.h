@@ -23,7 +23,7 @@ namespace siren
         float           target_zscore = 3;
         float           stride_coeff = 0.5; // 0.2 for client-side fingerprinting
         size_t          min_peak_count = 350;
-        size_t          target_tile_size = 455;
+        size_t          target_block_size = 455;
         WindowFunction  target_window_function = WindowFunction::Hanning;
     };
 
