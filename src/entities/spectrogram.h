@@ -86,19 +86,18 @@ namespace siren
         }
 
         template<typename T>
-        double get_mad(std::vector<T> dist)
+        double get_mad(std::vector<T> dist, double median)
         {
             if (dist.empty())
             {
                 return 0;
             }
 
-            double median = get_median(dist);
             size_t size = dist.size();
 
             std::vector<double> deviations(size);
             std::transform(dist.begin(), dist.end(), deviations.begin(),
-            [&](double x)
+            [&](T x)
             {
                 return std::abs(x - median);
             });
@@ -111,7 +110,7 @@ namespace siren
         double get_zscore_of_peak(double median, double mad, T point)
         {
             double z_score = 0.6745 * ((point - median) / mad);
-            if (isnan(z_score))
+            if (isnan(z_score) || isinf(z_score))
             {
                 z_score = 0;
             }

@@ -187,7 +187,7 @@ namespace siren
             flattenEigenBlock(block, flat_block);
 
             double median = get_median(flat_block);
-            double mad = get_mad(flat_block);
+            double mad = get_mad(flat_block, median);
 
             block.prune([this, median, mad](size_t, size_t, float val) {
                 return get_zscore_of_peak(median, mad, val) >= m_zscore;
