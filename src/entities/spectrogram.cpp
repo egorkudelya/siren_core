@@ -24,6 +24,16 @@ namespace siren
         return m_spectrogram;
     }
 
+    float Spectrogram::get_time_resolution() const
+    {
+        return m_time_resolution;
+    }
+
+    float Spectrogram::get_freq_resolution() const
+    {
+        return m_freq_resolution;
+    }
+
     void Spectrogram::make_linear_spectrogram()
     {
         std::vector<Triplet> triplet_list;
@@ -117,11 +127,11 @@ namespace siren
     }
 
 
-    PeakSpectrogram::PeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm, std::unique_ptr<siren::FFT> fft, float peak_threshold)
-        : Spectrogram(std::move(pcm), std::move(fft))
+    PeakSpectrogram::PeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm, std::unique_ptr<siren::FFT> fft, float zscore)
+        : Spectrogram(std::move(pcm), std::move(fft)), m_zscore(zscore)
     {
         init_peak_spectrogram();
-        make_peak_spectrogram(peak_threshold);
+        make_peak_spectrogram();
     }
 
     void PeakSpectrogram::init_peak_spectrogram()
@@ -147,29 +157,20 @@ namespace siren
         return indices;
     }
 
-    void PeakSpectrogram::make_peak_spectrogram(float peak_threshold)
+    void PeakSpectrogram::make_peak_spectrogram()
     {
         std::vector<Triplet> triplet_list;
-        int bands = 8;
-        auto distribution = log_distribution(this->rows(), bands);
+        auto distribution = log_distribution(this->rows(), 8);
 
-        auto mean_of_block = [](const Eigen::SparseMatrix<float>& block) {
-            return block.sum() / block.nonZeros();
-        };
-
-        auto std_dev = [&mean_of_block](const Eigen::SparseMatrix<float, Eigen::RowMajor>& block) {
-            float total = 0;
-            float mean = mean_of_block(block);
-
+        auto flattenEigenBlock = [](const Eigen::SparseMatrix<float, Eigen::RowMajor>& block, auto& vec)
+        {
             for (size_t i = 0; i < block.outerSize(); i++)
             {
                 for (Eigen::SparseMatrix<float, Eigen::RowMajor>::InnerIterator it(block, i); it; ++it)
                 {
-                    total += std::pow((it.value() - mean), 2);
+                    vec.emplace_back(it.value());
                 }
             }
-            total /= block.nonZeros();
-            return sqrt(total);
         };
 
         auto spec = this->get_spectrogram_view();
@@ -182,13 +183,14 @@ namespace siren
                 return val >= 0.0;
             });
 
-            float block_stdev = std_dev(block);
+            std::vector<float> flat_block;
+            flattenEigenBlock(block, flat_block);
 
-            float mean = mean_of_block(block);
-            float threshold = mean + peak_threshold * block_stdev;
+            double median = get_median(flat_block);
+            double mad = get_mad(flat_block, median);
 
-            block.prune([&threshold](size_t, size_t, float val) {
-                return val >= threshold;
+            block.prune([this, median, mad](size_t, size_t, float val) {
+                return get_zscore_of_peak(median, mad, val) >= m_zscore;
             });
 
             for (size_t j = 0; j < block.outerSize(); j++)

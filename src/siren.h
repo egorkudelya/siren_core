@@ -11,33 +11,30 @@
 namespace siren
 {
 
-    struct CoreParameters {
+    struct CoreParameters
+    {
         /**
         * default target parameters can be overwritten by client in CreateCore
         */
 
-        enum class HashingPattern
-        {
-            Sequential,
-            Triangular,
-            Rectangular
-        };
-
         unsigned int    target_sampling_rate = 11025;
         unsigned int    target_channel_count = 1;
         size_t          target_window_size = 1024;
-        float           target_peak_threshold = 1.85;
-        size_t          min_peak_count = 160;
-        size_t          target_net_size = 80;
+        float           target_zscore = 3;
+        float           stride_coeff = 0.5; // 0.2 for client-side fingerprinting
+        size_t          min_peak_count = 350;
+        size_t          target_block_size = 455;
         WindowFunction  target_window_function = WindowFunction::Hanning;
     };
 
-    struct CoreSpecification {
+    struct CoreSpecification
+    {
         std::string name = "Siren Fingerprinting Core";
         CoreParameters core_params;
     };
 
-    struct CoreReturnType {
+    struct CoreReturnType
+    {
 
         explicit operator bool() const
         {

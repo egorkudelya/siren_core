@@ -1,5 +1,4 @@
 #include "client_wrapper.h"
-#include "../common/common.h"
 #include <charconv>
 
 namespace siren::client
@@ -11,17 +10,18 @@ namespace siren::client
         std::string sampling_rate = getenv("SAMPLING_RATE");
         std::string channel_count = getenv("CHANNEL_COUNT");
         std::string window_size = getenv("WINDOW_SIZE");
-        std::string peak_threshold = getenv("PEAK_THRESHOLD");
+        std::string zscore = getenv("CORE_PEAK_ZSCORE");
         std::string min_peak_count = getenv("MIN_PEAK_COUNT");
-        std::string net_size = getenv("NET_SIZE");
+        std::string block_size = getenv("CORE_BLOCK_SIZE");
         std::string window_function = getenv("WINDOW_FUNCTION");
+        std::string stride_coeff = getenv("CORE_BLOCK_STRIDE_COEFF");
 
         auto convert_to_type = [](const std::string& src, auto& target)
         {
             using TargetType = std::remove_reference_t<decltype(target)>;
             TargetType value;
             auto [p, ec] = std::from_chars(src.data(), src.data() + src.size(), value);
-            if (ec != std::errc())
+            if (ec == std::errc())
             {
                 target = value;
             }
@@ -38,23 +38,33 @@ namespace siren::client
         {
             convert_to_type(window_size, spec.core_params.target_window_size);
         }
-        if (!peak_threshold.empty())
+        if (!zscore.empty())
         {
         #ifndef __clang__
-            convert_to_type(peak_threshold, spec.core_params.target_peak_threshold);
+            convert_to_type(zscore, spec.core_params.target_zscore);
         #else
-            float peak_threshold_f = std::stof(peak_threshold);
-            release_assert(!isnan(peak_threshold_f), "peak_threshold_f is nan");
-            spec.core_params.target_peak_threshold = peak_threshold_f;
+            float zscore_f = std::stof(zscore);
+            release_assert(!isnan(zscore_f), "zscore_f is nan");
+            spec.core_params.target_zscore = zscore_f;
         #endif
         }
         if (!min_peak_count.empty())
         {
             convert_to_type(min_peak_count, spec.core_params.min_peak_count);
         }
-        if (!net_size.empty())
+        if (!block_size.empty())
         {
-            convert_to_type(net_size, spec.core_params.target_net_size);
+            convert_to_type(block_size, spec.core_params.target_block_size);
+        }
+        if (!stride_coeff.empty())
+        {
+        #ifndef __clang__
+            convert_to_type(stride_coeff, spec.core_params.stride_coeff);
+        #else
+            float stride_coeff_f = std::stof(stride_coeff);
+            release_assert(!isnan(stride_coeff_f), "stride_coeff_f is nan");
+            spec.core_params.stride_coeff = stride_coeff_f;
+        #endif
         }
         if (!window_function.empty())
         {

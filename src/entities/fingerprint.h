@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "spectrogram.h"
+#include "kdtree.h"
 #include "../common/common.h"
 #include "../common/hash/xxh64.h"
 #include "../serializer/serializer.h"
@@ -24,14 +25,12 @@ namespace siren
 
         [[nodiscard]] inline std::string to_str() const
         {
-            std::string str_array{"["};
+            std::string str_array;
             str_array.reserve(m_expected_len);
             for (int i = 0; i < m_values.size(); ++i)
             {
-                str_array += std::to_string(m_values[i]) + ',';
+                str_array += std::to_string(m_values[i]);
             }
-            str_array.pop_back();
-            str_array += "]";
             return str_array;
         }
 
@@ -58,7 +57,7 @@ namespace siren
         }
     };
 
-    using HashableAnchor = Hashable<Anchor, size_t>;
+    using HashableAnchor = Hashable<Anchor, int64_t>;
 
     template<typename KeyType = uint64_t, typename Timestamp = size_t>
     class Fingerprint
@@ -91,6 +90,11 @@ namespace siren
             return m_fingerprint.cend();
         }
 
+        size_t get_size() const
+        {
+            return m_fingerprint.size();
+        }
+
         template<typename InputIterator>
         Fingerprint(InputIterator begin, InputIterator end)
         {
@@ -104,7 +108,7 @@ namespace siren
             return lhs.m_fingerprint == rhs.m_fingerprint;
         }
 
-        void print()
+        void print() const
         {
             for (const auto& bucket : m_fingerprint)
             {
@@ -125,49 +129,79 @@ namespace siren
         }
 
         template<typename Spec = siren::PeakSpectrogram>
-        CoreStatus make_fingerprint(Spec&& spectrogram, size_t net_size, size_t min_peak_count)
+        CoreStatus make_fingerprint(Spec&& spectrogram, size_t block_size, size_t min_peak_count, float stride_coeff=0.5)
         {
-            std::vector<std::pair<size_t, size_t>> ind = spectrogram.get_occupied_indices();
-
-            if (ind.size() < min_peak_count)
+            Eigen::SparseMatrix<float, Eigen::RowMajor> space = spectrogram.get_peak_spec_view();
+            if (space.nonZeros() < min_peak_count)
             {
                 return CoreStatus::PeaksTooSparse;
             }
 
-            auto predicate = [&](const auto& first, const auto& second) {
-                /**
-			    * .first - frequency, .second - timestamp
-			    */
-                if (first.second == second.second)
-                {
-                    return first.first < second.first;
-                }
-                return first.second < second.second;
-            };
-
-            std::sort(ind.begin(), ind.end(), predicate);
-            for (size_t i = 6; i < ind.size() - net_size; i++)
+            if (block_size > space.rows() || block_size > space.cols())
             {
-                for (size_t j = i + 7; j < i + net_size; j++)
+                return CoreStatus::CoreParamsFatalError;
+            }
+
+            if (block_size < spectrogram.get_time_resolution() || block_size < spectrogram.get_freq_resolution())
+            {
+                return CoreStatus::CoreParamsLogicError;
+            }
+
+            auto hash_block = [this](Eigen::SparseMatrix<float, Eigen::RowMajor>&& block, int ioffset, int joffset)
+            {
+                if (block.nonZeros() < 3)
                 {
-                    if  (  ind[j].second - ind[i-4].second == 0
-                        || ind[j].second - ind[i-2].second == 0
-                        || ind[j].second - ind[i].second == 0)
+                    return;
+                }
+                std::vector<std::array<int64_t, 2>> points;
+                for (size_t i = 0; i < block.outerSize(); i++)
+                {
+                    for (auto it = Eigen::SparseMatrix<float, Eigen::RowMajor>::InnerIterator(block, i); it; ++it)
+                    {
+                        points.push_back({it.row() + ioffset, it.col() + joffset});
+                    }
+                }
+
+                KDTree<int64_t, 2> tree(points);
+                for (size_t i = 0; i < points.size() - 3; i++)
+                {
+                    std::array<int64_t, 2> anchor_point = points[i];
+                    auto cluster = tree.nearest_neighbors({anchor_point[0], anchor_point[1] + block.cols()/5});
+                    cluster.erase(anchor_point);
+
+                    if (cluster.size() < 3)
                     {
                         continue;
                     }
 
-                    Timestamp ts = ind[j].second;
+                    std::array<int64_t, 2> first = *cluster.begin();
+                    std::array<int64_t, 2> second = *std::next(cluster.begin(), 1);
+                    std::array<int64_t, 2> third = *std::next(cluster.begin(), 2);
+
+                    // avoiding dt == 0 to minimize collisions
+                    if (first[1] == anchor_point[1] && second[1] == anchor_point[1] && third[1] == anchor_point[1])
+                    {
+                        continue;
+                    }
+
                     HashableAnchor anchor
                         {
-                        ind[i-4].first, ind[i-2].first,
-                        ind[i].first,   ind[j].first,
-                        ind[j].second - ind[i-4].second,
-                        ind[j].second - ind[i-2].second,
-                        ind[j].second - ind[i].second
+                            first[0], second[0], third[0],
+                            anchor_point[0],
+                            abs(anchor_point[1] - first[1]),
+                            abs(anchor_point[1] - second[1]),
+                            abs(anchor_point[1] - third[1]),
                         };
+                    m_fingerprint.emplace(anchor.hash(), anchor_point[1]);
+                }
+            };
 
-                    m_fingerprint.emplace(anchor.hash(), ts);
+            for (size_t i = 0; i < space.rows() - block_size; i += floor(block_size*stride_coeff))
+            {
+                for (size_t j = 0; j < space.cols() - block_size; j += floor(block_size*stride_coeff))
+                {
+                    Eigen::SparseMatrix<float, Eigen::RowMajor> block = space.block(i, j, block_size, block_size);
+                    hash_block(std::move(block), i, j);
                 }
             }
             return CoreStatus::OK;

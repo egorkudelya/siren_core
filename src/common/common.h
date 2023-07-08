@@ -11,7 +11,9 @@ namespace siren
     {
         OK = 0,
         PeaksTooSparse = -1,
-        TargetFileDoesNotExist = -2
+        TargetFileDoesNotExist = -2,
+        CoreParamsFatalError = -3,
+        CoreParamsLogicError = -4
     };
 
     std::string getenv(const std::string& name);
