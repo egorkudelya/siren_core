@@ -3,10 +3,10 @@
 #include <set>
 
 template <typename CoordType, size_t dims>
-class Point
+class KDPoint
 {
 public:
-    Point(std::array<CoordType, dims>&& arr)
+    KDPoint(std::array<CoordType, dims>&& arr)
         : m_point{std::move(arr)}
     {
     }
@@ -26,7 +26,7 @@ public:
         return dims;
     }
 
-    double distance(const Point& other) const
+    double distance(const KDPoint& other) const
     {
         double dist = 0;
         for (size_t i = 0; i < dims; ++i)
@@ -45,7 +45,7 @@ private:
 template <typename CoordType, size_t dims>
 class KDTree
 {
-    using PointType = Point<CoordType, dims>;
+    using PointType = KDPoint<CoordType, dims>;
     using NeighborSet = std::set<std::array<CoordType, dims>>;
 
     struct Node
