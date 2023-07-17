@@ -11,21 +11,12 @@ namespace siren::client
         std::string channel_count = getenv("CHANNEL_COUNT");
         std::string window_size = getenv("WINDOW_SIZE");
         std::string zscore = getenv("CORE_PEAK_ZSCORE");
+        std::string band_count = getenv("CORE_FREQ_BAND_COUNT");
         std::string min_peak_count = getenv("MIN_PEAK_COUNT");
         std::string block_size = getenv("CORE_BLOCK_SIZE");
         std::string window_function = getenv("WINDOW_FUNCTION");
         std::string stride_coeff = getenv("CORE_BLOCK_STRIDE_COEFF");
 
-        auto convert_to_type = [](const std::string& src, auto& target)
-        {
-            using TargetType = std::remove_reference_t<decltype(target)>;
-            TargetType value;
-            auto [p, ec] = std::from_chars(src.data(), src.data() + src.size(), value);
-            if (ec == std::errc())
-            {
-                target = value;
-            }
-        };
         if (!sampling_rate.empty())
         {
             convert_to_type(sampling_rate, spec.core_params.target_sampling_rate);
@@ -37,6 +28,10 @@ namespace siren::client
         if (!window_size.empty())
         {
             convert_to_type(window_size, spec.core_params.target_window_size);
+        }
+        if (!band_count.empty())
+        {
+            convert_to_type(band_count, spec.core_params.target_band_count);
         }
         if (!zscore.empty())
         {

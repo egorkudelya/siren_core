@@ -65,14 +65,14 @@ namespace siren
     class PeakSpectrogram : public Spectrogram
     {
     public:
-        PeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm, std::unique_ptr<siren::FFT> fft, float zscore = 2.5);
+        PeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm, std::unique_ptr<siren::FFT> fft, float zscore = 3, size_t bands=15);
         [[nodiscard]] std::vector<std::pair<size_t, size_t>> get_occupied_indices();
         [[nodiscard]] const Eigen::SparseMatrix<float, Eigen::RowMajor>& get_peak_spec_view() const;
 
     private:
         void init_peak_spectrogram();
         void make_peak_spectrogram();
-        std::vector<unsigned int> log_distribution(size_t end_index, int bands);
+        std::vector<unsigned int> log_distribution(size_t end_index, size_t bands);
 
         template<typename T>
         double get_median(std::vector<T> dist)
@@ -119,6 +119,7 @@ namespace siren
 
     private:
         float m_zscore;
+        size_t m_bands;
         Eigen::SparseMatrix<float, Eigen::RowMajor> m_peak_spectrogram;
     };
 
