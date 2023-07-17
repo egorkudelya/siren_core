@@ -20,7 +20,8 @@ namespace siren
         unsigned int    target_sampling_rate = 11025;
         unsigned int    target_channel_count = 1;
         size_t          target_window_size = 1024;
-        float           target_zscore = 3;
+        float           target_zscore = 3; // 2.45 for client-side fingerprinting
+        size_t          target_band_count = 15;
         float           stride_coeff = 0.5; // 0.2 for client-side fingerprinting
         size_t          min_peak_count = 350;
         size_t          target_block_size = 455;

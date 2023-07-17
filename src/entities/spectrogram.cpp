@@ -127,8 +127,8 @@ namespace siren
     }
 
 
-    PeakSpectrogram::PeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm, std::unique_ptr<siren::FFT> fft, float zscore)
-        : Spectrogram(std::move(pcm), std::move(fft)), m_zscore(zscore)
+    PeakSpectrogram::PeakSpectrogram(std::unique_ptr<siren::audio::PCM> pcm, std::unique_ptr<siren::FFT> fft, float zscore, size_t bands)
+        : Spectrogram(std::move(pcm), std::move(fft)), m_zscore(zscore), m_bands(bands)
     {
         init_peak_spectrogram();
         make_peak_spectrogram();
@@ -160,7 +160,7 @@ namespace siren
     void PeakSpectrogram::make_peak_spectrogram()
     {
         std::vector<Triplet> triplet_list;
-        auto distribution = log_distribution(this->rows(), 8);
+        auto distribution = log_distribution(this->rows(), m_bands);
 
         auto flattenEigenBlock = [](const Eigen::SparseMatrix<float, Eigen::RowMajor>& block, auto& vec)
         {
@@ -207,7 +207,7 @@ namespace siren
         m_peak_spectrogram.setFromTriplets(triplet_list.begin(), triplet_list.end());
     }
 
-    std::vector<unsigned int> PeakSpectrogram::log_distribution(size_t end_index, int bands)
+    std::vector<unsigned int> PeakSpectrogram::log_distribution(size_t end_index, size_t bands)
     {
         double scale = end_index / log(1.0 + bands);
         std::vector<unsigned int> intervals;
